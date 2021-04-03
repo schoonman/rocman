@@ -4,10 +4,12 @@
 
 body {
     display: flex;
-    /* flex-direction: column; */
+    flex-direction: column;
+    font-family: 'Press Start 2P';
     align-items: center;
     justify-content: center;
     height: 100vh;
+    width: 100vw;
     margin: 0;
 }
 
@@ -16,6 +18,7 @@ body {
     align-items: center;
     justify-content: center;
     height: 100%;
+    width: 640px;
     max-height: 640px;
     max-width: 640px;
     box-shadow: 0,0,20px,0 rgba(0,0,0,0.5);
@@ -25,7 +28,7 @@ body {
 
 #grid div {
     /* border: 1px solid lightgrey; */
-    background-color:blanchedalmond;
+    background-color: slategrey;
     flex-grow: 1;
     height: 10%;
     width: 10%;
@@ -62,4 +65,15 @@ body {
     background-size: 32px;
     background-position-x: 0; 
     background-position-y: 0;
+}
+
+#scoreboard {
+    color: darkslategrey;
+    margin: 20px
+}
+
+#title {
+    font-size: xx-large;
+    color: darkslategrey;
+    margin: 20px;
 }
