@@ -49,7 +49,10 @@ body {
 }
 
 #grid div.dino {
-    background-color: rgb(255, 0, 0);
+    background-image: url(../assets/dino.png);
+    background-size: 32px;
+    background-position-x: 0; 
+    background-position-y: 0;
 }
 
 #grid div.rock {
@@ -68,8 +71,12 @@ body {
 }
 
 #scoreboard {
+    display: flex;
+    width: 640px;
+    align-items: center;
+    justify-content: space-between;
     color: darkslategrey;
-    margin: 20px
+    margin: 20px;
 }
 
 #title {
