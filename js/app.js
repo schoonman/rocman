@@ -44,44 +44,64 @@ function setupGrid(width,height) {
         });
         gridCells.push(cell)
     }
-    console.log(gridCells)
-    return gridCells
+    // console.log(gridCells)
+    return [gridCells,cellStates]
 };
 
-function setupLevel(cellStates, levelGrid) {
+function setupLevel(cellStates, gridCells, levelGrid) {
     levelGrid.forEach(function (cell, i) {
         switch(cell) {
             case 'p':
-                cellStates[i].classList.add("player");
+                gridCells[i].classList.add("player");
+                cellStates[i]['player'] = true;
                 break;
             case 'r':
-                cellStates[i].classList.add("rock");
+                gridCells[i].classList.add("rock");
+                cellStates[i]['rock'] = true;
                 break;
             case 'w':
-                cellStates[i].classList.add("wall");
+                gridCells[i].classList.add("wall");
+                cellStates[i]['wall'] = true;
                 break;
             case 'g':
-                cellStates[i].classList.add("gem");
+                gridCells[i].classList.add("gem");
+                cellStates[i]['gem'] = true;
                 break;
             case 'd':
-                cellStates[i].classList.add("dino");
+                gridCells[i].classList.add("dino");
+                cellStates[i]['dino'] = true;
                 break;
         }
     })
-    return cellStates;
+    return [gridCells,cellStates];
 }
                 
-function movePlayer(playerPosition, i, gridCells, scoreDisplay, livesDisplay) {
+function movePlayer(playerPosition, i, gridCells, cellStates, scoreDisplay, livesDisplay) {
+    // remove player from cell style
     gridCells[playerPosition].classList.remove("player")
+    // remove player from cell object
+    cellStates[playerPosition]['player'] = false
+    // increment player position
     playerPosition+=i
+    // add player to new cell style and object
     gridCells[playerPosition].classList.add("player")
-    if (gridCells[playerPosition].classList.contains("rock")) {
+    cellStates[playerPosition]['player'] = true
+
+    // if object contains rock:
+    if (cellStates[playerPosition]['rock']== true) {
+        // increment score by 1
         score += 1; 
+        // remove rock from grid object
+        cellStates[playerPosition]['rock'] = false
+        // remove rock style from grid 
         gridCells[playerPosition].classList.remove("rock");
-    } else if (gridCells[playerPosition].classList.contains("gem")) {
+    } else if (cellStates[playerPosition]['gem'] == true) {
         score += 10; 
+        // remove gem from grid object
+        cellStates[playerPosition]['gem'] = false;
+        // remove gem from cell style 
         gridCells[playerPosition].classList.remove("gem");
-    } else if (gridCells[playerPosition].classList.contains("dino")) {
+    } else if (cellStates[playerPosition]['dino'] == true) {
         if (lives >0) {
             lives -=1
             // RESET LEVEL
@@ -92,44 +112,110 @@ function movePlayer(playerPosition, i, gridCells, scoreDisplay, livesDisplay) {
     scoreDisplay.innerHTML = score
     livesDisplay.innerHTML = lives
 
-    return [playerPosition,score]
+    return [playerPosition,score,cellStates]
 };
 
-function moveDino(dinoPosition, i, gridCells, livesDisplay) {
+function moveDino(dinoPosition, i, gridCells, cellStates, livesDisplay) {
+    
+    // remove dinosaur from last position
     gridCells[dinoPosition].classList.remove("dino")
+    // reinstate rock or gems if they were there before
+    if (cellStates[dinoPosition]['rock'] == true) {
+        gridCells[dinoPosition].classList.add('rock')
+    } else if (cellStates[dinoPosition]['gem'] == true) {
+        gridCells[dinoPosition].classList.add('gem')
+    }
+    // update cellStates to reflect dino exit
+    cellStates[dinoPosition]['dino'] = false
+    
+    // increment dino to new position
     dinoPosition+=i
+    // if new position has rocks or gems, get rid of them for now
+    if (cellStates[dinoPosition]['rock'] == true) {
+        gridCells[dinoPosition].classList.remove('rock')
+    } else if (cellStates[dinoPosition]['gem'] == true) {
+        gridCells[dinoPosition].classList.remove('gem')
+    }
+    // replace with a dino icon
     gridCells[dinoPosition].classList.add("dino")
-    if (gridCells[playerPosition].classList.contains("player") && lives >0) {
+    // update cell status to reflect dino arrival
+    cellStates[dinoPosition]['dino'] = true
+
+    // if the cell has a player, deduct lives 
+    if (gridCells[dinoPosition].classList.contains("player") && lives >0) {
         lives -= 1
-    } else if (gridCells[playerPosition].classList.contains("player")) {
+    } else if (gridCells[dinoPosition].classList.contains("player")) {
         lives = 0
-        gameOver=True
+        gameOver=true
     }
 
     livesDisplay.innerHTML = lives
-
+    console.log('dino moved to '+dinoPosition)
     return  dinoPosition
 
 }
                 
+function dinoMoves(width, height, cellStates, dinoPosition, gridCells, livesDisplay) {
+    let inc=1;
+    
+    // generate random number between one and four
+    let direction = Math.ceil(Math.random()*4);
+    console.log('direction: '+direction);
+    // represents direction
+    console.log('old dino position: '+ dinoPosition)
+
+    switch(direction) {
+        case 1:
+            inc=-1*width;
+            if (dinoPosition >= width && cellStates[dinoPosition+inc]["wall"]==false) {
+                dinoPosition = moveDino(dinoPosition, inc, gridCells, cellStates, livesDisplay);
+            }
+            break;
+        case 2: 
+            //down
+            inc = width;
+            if (dinoPosition <= width*height - width && cellStates[dinoPosition+inc]['wall']==false) {
+                dinoPosition= moveDino(dinoPosition, inc, gridCells, cellStates, livesDisplay)
+            }
+            break;
+        case 3:
+            //left
+            inc = -1;
+            if (dinoPosition % width != 0 && cellStates[dinoPosition+inc]['wall']==false) {
+                dinoPosition= moveDino(dinoPosition, inc, gridCells, cellStates, livesDisplay)
+            }
+            break;
+        case 4:
+            //right
+            inc = 1;
+            if (dinoPosition % width != width -1 && cellStates[dinoPosition+inc]['wall']==false) {
+                dinoPosition=moveDino(dinoPosition, inc, gridCells, cellStates, livesDisplay)
+            }
+            break; 
+    }
+
+
+    console.log('dino position:' + dinoPosition)
+    return dinoPosition
+}
+
 
 function loadGame() {
     const width = 20;
     const height = 20;
-    let gridCells = setupGrid(width,height);
-    let cellStates = setupLevel(gridCells,level1Grid);
-    const isPlayer = (cell) => cell =='p'
-    const isDino = (cell) => cell == 'd'
-    let playerPosition = level1Grid.findIndex(isPlayer);
-    let dinoPosition= level1Grid.findIndex(isDino)
+
+    let [gridCells, cellStates] = setupGrid(width,height);
+
+    [gridCells, cellStates] = setupLevel(cellStates,gridCells,level1Grid);
+    const isPlayer = (cell) => cell['player'] ==true;
+    const isDino = (cell) => cell['dino'] == true;
+    let playerPosition = cellStates.findIndex(isPlayer);
+    let dinoPosition= cellStates.findIndex(isDino);
     
-    const scoreDisplay=document.querySelector("#score")
-    const livesDisplay=document.querySelector("#lives")
+    const scoreDisplay=document.querySelector("#score");
+    const livesDisplay=document.querySelector("#lives");
 
 
-    // let playerPosition = 45;
-
-    // gridCells[playerPosition].classList.add("player")
 
     document.addEventListener("keyup", (e) => {
         // console.log(e)
@@ -138,37 +224,37 @@ function loadGame() {
         switch(e.key){
             case "ArrowUp": 
                 inc = -1*width;
-                if (playerPosition < width || cellStates[playerPosition+inc].classList.contains('wall')) {
+                if (playerPosition < width || cellStates[playerPosition+inc]['wall']== true) {
                     break;
                 } else {
-                    [playerPosition,score]=movePlayer(playerPosition,inc,cellStates, scoreDisplay, livesDisplay)
+                    [playerPosition,score,cellStates]=movePlayer(playerPosition,inc,gridCells, cellStates, scoreDisplay, livesDisplay)
                 }
                 break;
             case "ArrowDown": 
                 inc = width;
-                if (playerPosition > width*height - width || cellStates[playerPosition+inc].classList.contains('wall')) {
+                if (playerPosition > width*height - width || cellStates[playerPosition+inc]['wall']== true) {
                     break;
                 } else {
-                    [playerPosition,score]=movePlayer(playerPosition, inc, cellStates, scoreDisplay, livesDisplay)
+                    [playerPosition,score,cellStates]=movePlayer(playerPosition, inc, gridCells, cellStates, scoreDisplay, livesDisplay)
                 }
                 break;
 
             case "ArrowLeft":
                 inc = -1;
 
-                if (playerPosition % width == 0 || cellStates[playerPosition+inc].classList.contains('wall')) {
+                if (playerPosition % width == 0 || cellStates[playerPosition+inc]['wall']== true) {
                     break;
                 } else {
-                    [playerPosition,score]=movePlayer(playerPosition, inc, cellStates, scoreDisplay, livesDisplay)
+                    [playerPosition,score,cellStates]=movePlayer(playerPosition, inc, gridCells, cellStates, scoreDisplay, livesDisplay)
                 }
                 break;
             
             case "ArrowRight":
                 inc = 1
-                if (playerPosition % width == width -1 || cellStates[playerPosition+inc].classList.contains('wall')) {
+                if (playerPosition % width == width -1 || cellStates[playerPosition+inc]['wall']== true) {
                     break;
                 } else {
-                    [playerPosition,score]=movePlayer(playerPosition, inc, cellStates,scoreDisplay, livesDisplay)
+                    [playerPosition,score,cellStates]=movePlayer(playerPosition, inc, gridCells, cellStates,scoreDisplay, livesDisplay)
                 }
                 break;
 
