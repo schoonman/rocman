@@ -24,6 +24,49 @@ level1Grid=[
     'g','r','r','r','r','r','r','r','r','r','d','r','r','r','r','r','r','r','r','g',
 ]
 
+class Dino {
+    constructor (position, direction) {
+        this.position = position
+        this.direction = direction // 'up', 'down', 'left', 'right'
+        this.lastDirection = direction
+    }
+}
+
+// class GameBoard {
+//     constructor (width, height) {
+//         this.width = width
+//         this.height = height
+//         this.gridSize = width*height
+//         this.gridCells = function(width, height) {
+//             const grid = document.querySelector("#grid")
+//             const cells = []
+//             for (let i = 0; i < this.gridSize; i++) {
+//                 const cell = document.createElement("div")
+//                 cell.style.width=(100/width).toString(10)+"%"
+//                 cell.style.height=(100/height).toString(10)+"%";
+//                 grid.appendChild(cell)
+//                 cells.push(cell)
+//             }
+//             return cells
+//         }
+//         this.cellStates = function () {
+//             const cells = []
+//             for (let i = 0; i < this.gridSize; i++) {
+//                 cells.push({
+//                     "player": false,
+//                     "dino": false,
+//                     "wall": false,
+//                     "rock": false,
+//                     "gem": false
+//                 })
+//             return cells
+//             }
+//         }
+//         this.levelGrid = []
+//     }
+    
+// }
+
 function setupGrid(width,height) {
     const grid = document.querySelector("#grid");
     const gridSize= width*height;
@@ -48,7 +91,8 @@ function setupGrid(width,height) {
     return [gridCells,cellStates]
 };
 
-function setupLevel(cellStates, gridCells, levelGrid) {
+function setupLevel(gridCells, cellStates, levelGrid) {
+
     levelGrid.forEach(function (cell, i) {
         switch(cell) {
             case 'p':
@@ -73,7 +117,7 @@ function setupLevel(cellStates, gridCells, levelGrid) {
                 break;
         }
     })
-    return [gridCells,cellStates];
+    return [gridCells, cellStates]
 }
                 
 function movePlayer(playerPosition, i, gridCells, cellStates, scoreDisplay, livesDisplay) {
@@ -115,107 +159,151 @@ function movePlayer(playerPosition, i, gridCells, cellStates, scoreDisplay, live
     return [playerPosition,score,cellStates]
 };
 
-function moveDino(dinoPosition, i, gridCells, cellStates, livesDisplay) {
+function moveDino(dino, dir, width, gridCells, cellStates, livesDisplay) {
+
+    let i = 0
+    switch(dir) {
+        case 'up':
+            i=-1*width;
+            break;
+        case 'down':
+            i=width;
+            break;
+        case 'left':
+            i=-1;
+            break;
+        case 'right':
+            i=1;
+            break; 
+    }
     
     // remove dinosaur from last position
-    gridCells[dinoPosition].classList.remove("dino")
+    gridCells[dino.position].classList.remove("dino")
     // reinstate rock or gems if they were there before
-    if (cellStates[dinoPosition]['rock'] == true) {
-        gridCells[dinoPosition].classList.add('rock')
-    } else if (cellStates[dinoPosition]['gem'] == true) {
-        gridCells[dinoPosition].classList.add('gem')
+    if (cellStates[dino.position]['rock'] == true) {
+        gridCells[dino.position].classList.add('rock')
+    } else if (cellStates[dino.position]['gem'] == true) {
+        gridCells[dino.position].classList.add('gem')
     }
     // update cellStates to reflect dino exit
-    cellStates[dinoPosition]['dino'] = false
+    cellStates[dino.position]['dino'] = false
     
     // increment dino to new position
-    dinoPosition+=i
+    dino.position+=i
+
     // if new position has rocks or gems, get rid of them for now
-    if (cellStates[dinoPosition]['rock'] == true) {
-        gridCells[dinoPosition].classList.remove('rock')
-    } else if (cellStates[dinoPosition]['gem'] == true) {
-        gridCells[dinoPosition].classList.remove('gem')
+    if (cellStates[dino.position]['rock'] == true) {
+        gridCells[dino.position].classList.remove('rock')
+    } else if (cellStates[dino.position]['gem'] == true) {
+        gridCells[dino.position].classList.remove('gem')
     }
     // replace with a dino icon
-    gridCells[dinoPosition].classList.add("dino")
+    gridCells[dino.position].classList.add("dino")
     // update cell status to reflect dino arrival
-    cellStates[dinoPosition]['dino'] = true
+    cellStates[dino.position]['dino'] = true
 
     // if the cell has a player, deduct lives 
-    if (gridCells[dinoPosition].classList.contains("player") && lives >0) {
+    if (gridCells[dino.position].classList.contains("player") && lives >0) {
         lives -= 1
-    } else if (gridCells[dinoPosition].classList.contains("player")) {
+    } else if (gridCells[dino.position].classList.contains("player")) {
         lives = 0
         gameOver=true
     }
 
     livesDisplay.innerHTML = lives
-    console.log('dino moved to '+dinoPosition)
-    return  dinoPosition
+    console.log('dino moved to '+dino.position)
 
 }
-                
-function dinoMoves(width, height, cellStates, dinoPosition, gridCells, livesDisplay) {
-    let inc=1;
+
+function pathFree(dinoPosition, dir, width, height, cellStates) {
     
-    // generate random number between one and four
-    let direction = Math.ceil(Math.random()*4);
-    console.log('direction: '+direction);
-    // represents direction
-    console.log('old dino position: '+ dinoPosition)
-
-    switch(direction) {
-        case 1:
-            inc=-1*width;
-            if (dinoPosition >= width && cellStates[dinoPosition+inc]["wall"]==false) {
-                dinoPosition = moveDino(dinoPosition, inc, gridCells, cellStates, livesDisplay);
+    let inc =0
+    switch(dir) {
+        case 'up':
+            inc = -1*width
+            if (dinoPosition < width || cellStates[dinoPosition+inc]['wall']==true) {
+                return false
             }
             break;
-        case 2: 
-            //down
-            inc = width;
-            if (dinoPosition <= width*height - width && cellStates[dinoPosition+inc]['wall']==false) {
-                dinoPosition= moveDino(dinoPosition, inc, gridCells, cellStates, livesDisplay)
+        case 'down':
+            inc = width
+            if (dinoPosition >= (width * height) - width|| cellStates[dinoPosition+inc]['wall']==true) {
+                return false
             }
             break;
-        case 3:
-            //left
-            inc = -1;
-            if (dinoPosition % width != 0 && cellStates[dinoPosition+inc]['wall']==false) {
-                dinoPosition= moveDino(dinoPosition, inc, gridCells, cellStates, livesDisplay)
+        case 'left':
+            inc =-1
+            if (dinoPosition % width == 0 || cellStates[dinoPosition+inc]['wall'] == true) {
+                return false
             }
             break;
-        case 4:
-            //right
-            inc = 1;
-            if (dinoPosition % width != width -1 && cellStates[dinoPosition+inc]['wall']==false) {
-                dinoPosition=moveDino(dinoPosition, inc, gridCells, cellStates, livesDisplay)
+        case 'right':
+            inc = 1
+            if (dinoPosition % width == width -1 || cellStates[dinoPosition+inc]['wall']==true) {
+                return false
             }
-            break; 
+            break;
     }
-
-
-    console.log('dino position:' + dinoPosition)
-    return dinoPosition
+    return true
 }
+
+function rovingDino(width, height, dino, gridCells, cellStates, livesDisplay) {
+    console.log('time to move the dinosaur')
+    // get last move's direction from initialised class
+    let oldDirection = dino.lastDirection
+    console.log('old direction is '+oldDirection)
+    
+    // if same direction is free
+    if (pathFree(dino.position, oldDirection, width, height, cellStates)) {
+        console.log('the path is clear!')
+        moveDino(dino, oldDirection, width, gridCells, cellStates, livesDisplay)
+    } else {
+        console.log('path blocked')
+        const directionArray = ['up', 'down', 'left', 'right'];
+        const freeArray = directionArray.filter(
+            x => { return pathFree(dino.position, x, width, height, cellStates)}
+        )
+        console.log(freeArray)
+        directionIndex=Math.floor(Math.random()*freeArray.length)
+        newDirection = freeArray[directionIndex]
+        // moveDino(dino, newDirection, width, gridCells, cellStates, livesDisplay)
+        dino.lastDirection= newDirection
+
+    }
+}
+
+
 
 
 function loadGame() {
     const width = 20;
     const height = 20;
 
-    let [gridCells, cellStates] = setupGrid(width,height);
+    // const level1= new GameBoard(width, height)
+    
+    // setupLevel(level1,level1Grid)
 
-    [gridCells, cellStates] = setupLevel(cellStates,gridCells,level1Grid);
+    // console.log(level1.gridCells)
+    let board = setupGrid(width, height)
+    board = setupLevel(board[0], board[1], level1Grid)
+
+    let gridCells= board[0]
+    let cellStates = board[1]
+
     const isPlayer = (cell) => cell['player'] ==true;
     const isDino = (cell) => cell['dino'] == true;
+
+    // const gridCells = level1.gridCells
+    // const cellStates = level1.cellStates
     let playerPosition = cellStates.findIndex(isPlayer);
     let dinoPosition= cellStates.findIndex(isDino);
     
     const scoreDisplay=document.querySelector("#score");
     const livesDisplay=document.querySelector("#lives");
 
+    const dino1= new Dino(dinoPosition,'up')
 
+    setInterval( function() {rovingDino(width,height,dino1,gridCells,cellStates,livesDisplay);},500)
 
     document.addEventListener("keyup", (e) => {
         // console.log(e)
@@ -260,7 +348,6 @@ function loadGame() {
 
             
         }
-        console.log(typeof score)
         console.log(score)
     })
 
