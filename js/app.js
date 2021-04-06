@@ -32,64 +32,59 @@ class Dino {
     }
 }
 
-// class GameBoard {
-//     constructor (width, height) {
-//         this.width = width
-//         this.height = height
-//         this.gridSize = width*height
-//         this.gridCells = function(width, height) {
-//             const grid = document.querySelector("#grid")
-//             const cells = []
-//             for (let i = 0; i < this.gridSize; i++) {
-//                 const cell = document.createElement("div")
-//                 cell.style.width=(100/width).toString(10)+"%"
-//                 cell.style.height=(100/height).toString(10)+"%";
-//                 grid.appendChild(cell)
-//                 cells.push(cell)
-//             }
-//             return cells
-//         }
-//         this.cellStates = function () {
-//             const cells = []
-//             for (let i = 0; i < this.gridSize; i++) {
-//                 cells.push({
-//                     "player": false,
-//                     "dino": false,
-//                     "wall": false,
-//                     "rock": false,
-//                     "gem": false
-//                 })
-//             return cells
-//             }
-//         }
-//         this.levelGrid = []
-//     }
-    
-// }
-
-function setupGrid(width,height) {
-    const grid = document.querySelector("#grid");
-    const gridSize= width*height;
-    const cellStates=[];
-    const gridCells=[];
-    
-    for (let i = 0; i<gridSize; i++) {
-        const cell = document.createElement("div");
-        cell.style.width=(100/width).toString(10)+"%";
-        cell.style.height=(100/height).toString(10)+"%";
-        grid.appendChild(cell);
-        cellStates.push({
-            "player": false,
-            "dino": false,
-            "wall": false,
-            "rock": false,
-            "gem": false
-        });
-        gridCells.push(cell)
+class GameBoard {
+    constructor (width, height) {
+        this.width = width
+        this.height = height
+        this.gridSize = width*height
+        this.gridCells = []
+        this.cellStates = []
+        
+        this.setupGrid = function() {
+            const grid = document.querySelector("#grid");
+        
+            for (let i = 0; i<this.gridSize; i++) {
+                const cell = document.createElement("div");
+                cell.style.width=(100/this.width).toString(10)+"%";
+                cell.style.height=(100/this.height).toString(10)+"%";
+                grid.appendChild(cell);
+                this.cellStates.push({
+                    "player": false,
+                    "dino": false,
+                    "wall": false,
+                    "rock": false,
+                    "gem": false
+                });
+                this.gridCells.push(cell)
+            }
+        }
     }
-    // console.log(gridCells)
-    return [gridCells,cellStates]
-};
+    
+}
+
+// function setupGrid(width,height) {
+//     const grid = document.querySelector("#grid");
+//     const gridSize= width*height;
+//     const cellStates=[];
+//     const gridCells=[];
+    
+//     for (let i = 0; i<gridSize; i++) {
+//         const cell = document.createElement("div");
+//         cell.style.width=(100/width).toString(10)+"%";
+//         cell.style.height=(100/height).toString(10)+"%";
+//         grid.appendChild(cell);
+//         cellStates.push({
+//             "player": false,
+//             "dino": false,
+//             "wall": false,
+//             "rock": false,
+//             "gem": false
+//         });
+//         gridCells.push(cell)
+//     }
+//     // console.log(gridCells)
+//     return [gridCells,cellStates]
+// };
 
 function setupLevel(gridCells, cellStates, levelGrid) {
 
@@ -272,29 +267,28 @@ function rovingDino(width, height, dino, gridCells, cellStates, livesDisplay) {
     }
 }
 
-
-
-
 function loadGame() {
     const width = 20;
     const height = 20;
 
-    // const level1= new GameBoard(width, height)
+    const level1= new GameBoard(width, height)
+    level1.setupGrid()
+
+    console.log('gridCells=')
+    console.log(level1.gridCells)
+    console.log('cellStates=')
+    console.log(level1.cellStates)
+
+    let board=[level1.gridCells, level1.cellStates]
+    let gridCells = board[0]
+    let cellStates= board[1]
     
-    // setupLevel(level1,level1Grid)
+    board = setupLevel(gridCells, cellStates, level1Grid)
 
-    // console.log(level1.gridCells)
-    let board = setupGrid(width, height)
-    board = setupLevel(board[0], board[1], level1Grid)
-
-    let gridCells= board[0]
-    let cellStates = board[1]
 
     const isPlayer = (cell) => cell['player'] ==true;
     const isDino = (cell) => cell['dino'] == true;
 
-    // const gridCells = level1.gridCells
-    // const cellStates = level1.cellStates
     let playerPosition = cellStates.findIndex(isPlayer);
     let dinoPosition= cellStates.findIndex(isDino);
     
