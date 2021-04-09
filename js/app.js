@@ -61,30 +61,6 @@ class GameBoard {
     
 }
 
-// function setupGrid(width,height) {
-//     const grid = document.querySelector("#grid");
-//     const gridSize= width*height;
-//     const cellStates=[];
-//     const gridCells=[];
-    
-//     for (let i = 0; i<gridSize; i++) {
-//         const cell = document.createElement("div");
-//         cell.style.width=(100/width).toString(10)+"%";
-//         cell.style.height=(100/height).toString(10)+"%";
-//         grid.appendChild(cell);
-//         cellStates.push({
-//             "player": false,
-//             "dino": false,
-//             "wall": false,
-//             "rock": false,
-//             "gem": false
-//         });
-//         gridCells.push(cell)
-//     }
-//     // console.log(gridCells)
-//     return [gridCells,cellStates]
-// };
-
 function setupLevel(gridCells, cellStates, levelGrid) {
     let dinoCount=1
     levelGrid.forEach(function (cell, i) {
@@ -109,7 +85,6 @@ function setupLevel(gridCells, cellStates, levelGrid) {
             case 'd':
                 gridCells[i].classList.add("dino");
                 let dinoString='dino'+dinoCount
-                console.log('dinoString is:' + dinoString)
                 cellStates[i]['dino'] = dinoString;
                 dinoCount+=1
                 break;
@@ -143,6 +118,9 @@ function movePlayer(playerPosition, i, gridCells, cellStates, scoreDisplay, live
         cellStates[playerPosition]['gem'] = false;
         // remove gem from cell style 
         gridCells[playerPosition].classList.remove("gem");
+        //
+        // ADD GHOST EATING MODE HERE
+        //
     } else if (cellStates[playerPosition]['dino'] == true) {
         if (lives >0) {
             lives -=1
@@ -209,7 +187,6 @@ function moveDino(dino, dir, width, gridCells, cellStates, livesDisplay) {
     }
 
     livesDisplay.innerHTML = lives
-    console.log('dino moved to '+dino.position)
 
 }
 
@@ -284,11 +261,6 @@ function playGame() {
     const level1= new GameBoard(width, height)
     level1.setupGrid()
 
-    console.log('gridCells=')
-    console.log(level1.gridCells)
-    console.log('cellStates=')
-    console.log(level1.cellStates)
-
     let board=[level1.gridCells, level1.cellStates]
     let gridCells = board[0]
     let cellStates= board[1]
@@ -303,8 +275,6 @@ function playGame() {
     let playerPosition = cellStates.findIndex(isPlayer);
     let dinoPosition1= cellStates.findIndex(isDino1);
     let dinoPosition2= cellStates.findIndex(isDino2)
-    console.log('position1 is: '+dinoPosition1)
-    console.log('position2 is: '+dinoPosition2)
     
     const scoreDisplay=document.querySelector("#score");
     const livesDisplay=document.querySelector("#lives");
@@ -318,7 +288,7 @@ function playGame() {
     document.addEventListener("keyup", (e) => {
         // console.log(e)
         let inc = 1
-        console.log(e.key)
+        // console.log(e.key)
         switch(e.key){
             case "ArrowUp": 
                 inc = -1*width;
