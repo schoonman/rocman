@@ -2,26 +2,25 @@ let score = 0
 let lives = 3
 let gameOver = false
 level1Grid=[
-    'p','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','g',
-    'r','w','r','w','w','w','w','w','w','r','r','w','w','w','w','w','w','r','w','r',
-    'r','w','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','w','r',
-    'r','w','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','w','r',
-    'r','w','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','w','r',
-    'r','w','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','w','r',
-    'r','w','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','w','r',
-    'r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r',
-    'r','w','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','w','r',
-    'r','w','r','r','r','r','r','r','r','w','w','r','r','r','r','r','r','r','w','r',
-    'r','w','r','r','r','r','r','r','r','w','w','r','r','r','r','r','r','r','w','r',
-    'r','w','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','w','r',
-    'r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r',
-    'r','w','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','w','r',
-    'r','w','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','w','r',
-    'r','w','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','w','r',
-    'r','w','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','w','r',
-    'r','w','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','w','r',
-    'r','w','r','w','w','w','w','w','w','r','r','w','w','w','w','w','w','r','w','r',
-    'g','r','r','r','r','r','r','r','r','r','d','r','r','r','r','r','r','r','r','g',
+    'p','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','g',
+    'r','w','r','w','w','w','w','w','w','r','w','w','w','w','w','w','r','w','r',
+    'r','w','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','w','r',
+    'r','w','r','w','r','w','w','r','w','w','w','r','w','w','r','w','r','w','r',
+    'r','w','r','w','r','r','r','r','w','r','w','r','r','r','r','w','r','w','r',
+    'r','w','r','w','r','w','w','r','r','r','r','r','w','w','r','w','r','w','r',
+    'r','w','r','w','r','r','w','w','w','w','w','w','w','r','r','w','r','w','r',
+    'r','r','r','w','w','r','r','r','r','r','r','r','r','r','w','w','r','r','r',
+    'r','w','r','w','r','r','w','r','w','d','w','r','w','r','r','w','r','w','r',
+    'r','w','r','r','r','w','w','r','r','r','r','r','w','w','r','r','r','w','r',
+    'r','w','r','w','r','r','w','r','w','d','w','r','w','r','r','w','r','w','r',
+    'r','r','r','w','w','r','r','r','r','r','r','r','r','r','w','w','r','r','r',
+    'r','w','r','w','r','r','w','w','w','w','w','w','w','r','r','w','r','w','r',
+    'r','w','r','w','r','w','w','r','r','r','r','r','w','w','r','w','r','w','r',
+    'r','w','r','w','r','r','r','r','w','r','w','r','r','r','r','w','r','w','r',
+    'r','w','r','w','r','w','w','r','w','w','w','r','w','w','r','w','r','w','r',
+    'r','w','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','w','r',
+    'r','w','r','w','w','w','w','w','w','r','w','w','w','w','w','w','r','w','r',
+    'g','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','r','g',
 ]
 
 class Dino {
@@ -87,8 +86,9 @@ class GameBoard {
 // };
 
 function setupLevel(gridCells, cellStates, levelGrid) {
-
+    let dinoCount=1
     levelGrid.forEach(function (cell, i) {
+
         switch(cell) {
             case 'p':
                 gridCells[i].classList.add("player");
@@ -108,7 +108,10 @@ function setupLevel(gridCells, cellStates, levelGrid) {
                 break;
             case 'd':
                 gridCells[i].classList.add("dino");
-                cellStates[i]['dino'] = true;
+                let dinoString='dino'+dinoCount
+                console.log('dinoString is:' + dinoString)
+                cellStates[i]['dino'] = dinoString;
+                dinoCount+=1
                 break;
         }
     })
@@ -243,33 +246,40 @@ function pathFree(dinoPosition, dir, width, height, cellStates) {
 }
 
 function rovingDino(width, height, dino, gridCells, cellStates, livesDisplay) {
-    console.log('time to move the dinosaur')
+
     // get last move's direction from initialised class
     let oldDirection = dino.lastDirection
-    console.log('old direction is '+oldDirection)
     
     // if same direction is free
     if (pathFree(dino.position, oldDirection, width, height, cellStates)) {
-        console.log('the path is clear!')
         moveDino(dino, oldDirection, width, gridCells, cellStates, livesDisplay)
     } else {
-        console.log('path blocked')
         const directionArray = ['up', 'down', 'left', 'right'];
         const freeArray = directionArray.filter(
             x => { return pathFree(dino.position, x, width, height, cellStates)}
         )
-        console.log(freeArray)
         directionIndex=Math.floor(Math.random()*freeArray.length)
         newDirection = freeArray[directionIndex]
-        // moveDino(dino, newDirection, width, gridCells, cellStates, livesDisplay)
         dino.lastDirection= newDirection
-
+        moveDino(dino, newDirection, width, gridCells, cellStates, livesDisplay)
     }
 }
 
-function loadGame() {
-    const width = 20;
-    const height = 20;
+function randoDino(width, height, dino, gridCells, cellStates, livesDisplay) {
+    // this dino picks a random direction on every move
+    const directionArray = ['up', 'down', 'left', 'right'];
+    const freeArray = directionArray.filter(
+        x => { return pathFree(dino.position, x, width, height, cellStates)}
+    )
+    directionIndex=Math.floor(Math.random()*freeArray.length)
+    newDirection = freeArray[directionIndex]
+    dino.lastDirection= newDirection
+    moveDino(dino, newDirection, width, gridCells, cellStates, livesDisplay)
+}
+
+function playGame() {
+    const width = 19;
+    const height = 19;
 
     const level1= new GameBoard(width, height)
     level1.setupGrid()
@@ -287,17 +297,23 @@ function loadGame() {
 
 
     const isPlayer = (cell) => cell['player'] ==true;
-    const isDino = (cell) => cell['dino'] == true;
+    const isDino1 = (cell) => cell['dino'] == 'dino1';
+    const isDino2 = (cell) => cell['dino'] == 'dino2';
 
     let playerPosition = cellStates.findIndex(isPlayer);
-    let dinoPosition= cellStates.findIndex(isDino);
+    let dinoPosition1= cellStates.findIndex(isDino1);
+    let dinoPosition2= cellStates.findIndex(isDino2)
+    console.log('position1 is: '+dinoPosition1)
+    console.log('position2 is: '+dinoPosition2)
     
     const scoreDisplay=document.querySelector("#score");
     const livesDisplay=document.querySelector("#lives");
 
-    const dino1= new Dino(dinoPosition,'up')
+    const dino1= new Dino(dinoPosition1,'up')
+    const dino2= new Dino(dinoPosition2,'down')
 
-    setInterval( function() {rovingDino(width,height,dino1,gridCells,cellStates,livesDisplay);},500)
+    setInterval( function() {rovingDino(width,height,dino1,gridCells,cellStates,livesDisplay);},300)
+    setInterval( function() {randoDino(width,height,dino2,gridCells,cellStates,livesDisplay);},300)
 
     document.addEventListener("keyup", (e) => {
         // console.log(e)
@@ -349,4 +365,4 @@ function loadGame() {
 };
 
 
-document.addEventListener("DOMContentLoaded", loadGame);
+document.addEventListener("DOMContentLoaded", playGame);
